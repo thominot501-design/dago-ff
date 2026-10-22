@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#030b17">
+  <title>DAGO FF — Play • Compete • Win</title>
+  <style>
+    :root {
+      --bg:#020813; --panel:#061321; --line:#123d60; --muted:#a9bfd3;
+      --red:#ff1744; --red2:#d9002f; --white:#f7fbff; --blue:#0a2036;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100vh; color:var(--white);
+      font-family:Inter,Arial,Helvetica,sans-serif;
+      background:radial-gradient(ellipse at top,#102947 0%,#04101e 40%,#01050b 100%);
+    }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; }
+    .wrap { width:min(100% - 28px,520px); margin:0 auto; padding:20px 0 38px; }
+    .top { display:flex; justify-content:flex-end; align-items:center; margin-bottom:14px; }
+    select.lang {
+      background:#0a1c2e;color:white;border:1px solid #285273;border-radius:12px;
+      padding:10px 12px; outline:none;
+    }
+    .brand { text-align:center; padding:10px 12px 22px; }
+    .crown { font-size:32px; color:var(--red); line-height:1; }
+    .logo { font-size:clamp(42px,12vw,64px); font-weight:1000; font-style:italic; letter-spacing:-3px; text-shadow:0 0 22px #ff174433; }
+    .logo span { color:var(--red); }
+    .tag { letter-spacing:2px; font-weight:800; font-size:12px; color:#d6e2ee; margin-top:5px; }
+    .card {
+      background:linear-gradient(150deg,rgba(7,22,38,.97),rgba(2,10,20,.98));
+      border:1px solid var(--line); border-radius:20px; padding:23px 20px;
+      box-shadow:0 18px 45px #0008, inset 0 1px #ffffff08;
+    }
+    .screen { display:none; animation:fade .22s ease; }
+    .screen.active { display:block; }
+    @keyframes fade { from {opacity:.25; transform:translateY(5px)} to {opacity:1;transform:none} }
+    h1,h2,p { margin-top:0; }
+    h1 { font-size:24px; margin-bottom:9px; }
+    h2 { font-size:21px; margin-bottom:8px; }
+    .sub { color:var(--muted); font-size:14px; line-height:1.55; margin-bottom:22px; }
+    .field { margin:16px 0; }
+    label { display:block; font-size:13px; font-weight:750; margin-bottom:7px; color:#e8f1f8; }
+    .required { color:#ff718b; }
+    input, .field select {
+      width:100%; border:1px solid #214968; border-radius:12px; background:#07192a;
+      color:white; padding:14px 13px; outline:none; min-height:48px;
+    }
+    input::placeholder { color:#819db5; }
+    input:focus, .field select:focus { border-color:#ff3159; box-shadow:0 0 0 3px #ff17441b; }
+    .btn {
+      width:100%; border:0; border-radius:13px; padding:15px 16px; font-weight:850;
+      color:white; background:linear-gradient(100deg,var(--red),var(--red2));
+      box-shadow:0 8px 20px #ff174426; margin-top:12px;
+    }
+    .btn:hover { filter:brightness(1.08); }
+    .btn:disabled { opacity:.6; cursor:wait; }
+    .btn-outline { background:transparent; border:1px solid #9bb2c5; box-shadow:none; }
+    .google {
+      background:#fff;color:#15253a; box-shadow:none; display:flex; justify-content:center;
+      align-items:center; gap:10px;
+    }
+    .google-mark { font-weight:1000; font-size:22px; color:#4285f4; }
+    .or { display:flex; gap:12px; align-items:center; color:#a9bfd3; font-size:13px; margin:18px 0 4px; }
+    .or:before,.or:after { content:""; height:1px; flex:1; background:#24435c; }
+    .back { border:0;background:none;color:#e7f2fb;font-size:22px;padding:0 0 12px; }
+    .steps { display:flex; align-items:center; gap:7px; margin:4px 0 24px; }
+    .dot { width:27px;height:27px; flex:0 0 27px; display:grid;place-items:center;border-radius:50%;background:#122a42;color:#d4e5f4;font-size:12px;font-weight:800; }
+    .dot.on { background:var(--red); color:white; box-shadow:0 0 15px #ff17444c; }
+    .steps .line { height:2px; flex:1; background:#17354e; }
+    .options { display:flex; gap:8px; }
+    .options label {
+      flex:1; margin:0; padding:12px 8px; border:1px solid #214968; border-radius:10px;
+      font-size:12px; font-weight:600; text-align:center; cursor:pointer;
+    }
+    .options input { width:auto; min-height:0; margin:0 4px 0 0; accent-color:var(--red); }
+    .hint { color:#8faac0; font-size:12px; line-height:1.5; }
+    .success { text-align:center; padding:18px 0; }
+    .check { width:76px;height:76px;display:grid;place-items:center;margin:18px auto;border-radius:50%;border:2px solid #16d879;color:#16d879;font-size:44px;box-shadow:0 0 28px #16d87922; }
+    .status { min-height:20px; color:#ff9eb0; font-size:13px; margin-top:12px; line-height:1.5; }
+    .footer { text-align:center;color:#7592aa;font-size:12px;padding:18px 4px 0; }
+    .footer strong { color:#cbd9e5; }
+    .small-link { border:0;background:none;color:#ff536f;font-weight:750;padding:8px 2px; }
+    .hidden { display:none!important; }
+    @media (min-width:520px) { .card { padding:28px; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <select class="lang" id="language" aria-label="Language">
+        <option value="mg">🇲🇬 Malagasy</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+      </select>
+    </div>
+
+    <header class="brand">
+      <div class="crown">♛</div>
+      <div class="logo">DAGO <span>FF</span></div>
+      <div class="tag">PLAY&nbsp; • &nbsp;COMPETE&nbsp; • &nbsp;WIN</div>
+    </header>
+
+    <section class="card screen active" id="home">
+      <h1 data-i18n="welcome">Tongasoa eto amin'ny DAGO FF</h1>
+      <p class="sub" data-i18n="intro">Midira amin'ny vondrom-piarahamonin'ny mpilalao Free Fire.</p>
+      <button class="btn" data-go="email" data-i18n="signup">♟ INSCRIPTION</button>
+      <button class="btn btn-outline" data-go="login" data-i18n="login">↪ Se connecter</button>
+      <div class="footer">DAGO FF — <strong>Madagascar</strong></div>
+    </section>
+
+    <section class="card screen" id="email">
+      <button class="back" data-go="home" aria-label="Back">←</button>
+      <div class="steps"><span class="dot on">1</span><span class="line"></span><span class="dot">2</span><span class="line"></span><span class="dot">3</span><span class="line"></span><span class="dot">4</span></div>
+      <h2 data-i18n="emailTitle">Inscription : Adresse e-mail</h2>
+      <p class="sub" data-i18n="emailSub">Ampidiro ny adiresy mailaka hampiasainao amin'ny kaonty DAGO FF.</p>
+      <form id="emailForm">
+        <div class="field"><label for="emailAddress" data-i18n="emailLabel">Adresse e-mail <span class="required">*</span></label><input id="emailAddress" type="email" autocomplete="email" placeholder="exemple@gmail.com" required></div>
+        <button class="btn" type="submit" data-i18n="continue">Continuer →</button>
+      </form>
+      <div class="or" data-i18n="or">Ou</div>
+      <button class="btn google" id="googleBtn" type="button"><span class="google-mark">G</span><span data-i18n="google">Continuer avec Google</span></button>
+      <p class="hint" style="margin-top:18px;text-align:center"><span data-i18n="hasAccount">Efa manana kaonty?</span> <button class="small-link" data-go="login" data-i18n="login">Se connecter</button></p>
+      <p class="status" id="emailStatus" role="status"></p>
+    </section>
+
+    <section class="card screen" id="details">
+      <button class="back" data-go="email" aria-label="Back">←</button>
+      <div class="steps"><span class="dot">1</span><span class="line"></span><span class="dot on">2</span><span class="line"></span><span class="dot">3</span><span class="line"></span><span class="dot">4</span></div>
+      <h2 data-i18n="detailsTitle">Informations personnelles</h2>
+      <p class="sub" data-i18n="detailsSub">Fenoy ny mombamomba anao.</p>
+      <form id="detailsForm">
+        <div class="field"><label for="lastName" data-i18n="lastName">Nom <span class="required">*</span></label><input id="lastName" autocomplete="family-name" required></div>
+        <div class="field"><label for="firstName" data-i18n="firstName">Prénom(s) <span class="required">*</span></label><input id="firstName" autocomplete="given-name" required></div>
+        <div class="field"><label for="age" data-i18n="age">Âge <span class="required">*</span></label><select id="age" required><option value="" data-i18n="choose">Sélectionnez votre âge</option></select></div>
+        <div class="field"><label for="location" data-i18n="location">Lieu de résidence <span class="required">*</span></label><input id="location" autocomplete="address-level2" required></div>
+        <div class="field"><label data-i18n="gender">Sexe (optionnel)</label><div class="options">
+          <label><input type="radio" name="gender" value="Masculin"> <span data-i18n="male">Masculin</span></label>
+          <label><input type="radio" name="gender" value="Féminin"> <span data-i18n="female">Féminin</span></label>
+          <label><input type="radio" name="gender" value="none"> <span data-i18n="preferNot">Ne pas préciser</span></label>
+        </div></div>
+        <button class="btn" type="submit" data-i18n="continue">Continuer →</button>
+      </form>
+      <p class="status" id="detailsStatus" role="status"></p>
+    </section>
+
+    <section class="card screen" id="game">
+      <button class="back" data-go="details" aria-label="Back">←</button>
+      <div class="steps"><span class="dot">1</span><span class="line"></span><span class="dot">2</span><span class="line"></span><span class="dot on">3</span><span class="line"></span><span class="dot">4</span></div>
+      <h2 data-i18n="gameTitle">Compte Free Fire</h2>
+      <p class="sub" data-i18n="gameSub">Ampidiro ny pseudo sy UID Free Fire raha tianao ho fantatra ao amin'ny DAGO FF.</p>
+      <form id="gameForm">
+        <div class="field"><label for="nickname" data-i18n="nickname">Pseudo Free Fire (optionnel)</label><input id="nickname" placeholder="Votre pseudo"></div>
+        <div class="field"><label for="uid" data-i18n="uid">UID Free Fire (optionnel)</label><input id="uid" inputmode="numeric" pattern="[0-9]{5,20}" placeholder="Ex. : 123456789"></div>
+        <button class="btn" type="submit" data-i18n="continue">Continuer →</button>
+      </form>
+      <p class="hint" data-i18n="optionalHint">Afaka avelanao ho banga ireo raha tsy tianao ampidirina izao.</p>
+    </section>
+
+    <section class="card screen" id="password">
+      <button class="back" data-go="game" aria-label="Back">←</button>
+      <div class="steps"><span class="dot">1</span><span class="line"></span><span class="dot">2</span><span class="line"></span><span class="dot">3</span><span class="line"></span><span class="dot on">4</span></div>
+      <h2 data-i18n="passwordTitle">Mot de passe</h2>
+      <p class="sub" data-i18n="passwordSub">Mamoròna tenimiafina matanjaka ho an'ny kaontinao.</p>
+      <form id="passwordForm">
+        <div class="field"><label for="passwordInput" data-i18n="password">Mot de passe <span class="required">*</span></label><input id="passwordInput" type="password" minlength="8" autocomplete="new-password" required placeholder="8 caractères minimum"></div>
+        <div class="field"><label for="confirmPassword" data-i18n="confirmPassword">Confirmer le mot de passe <span class="required">*</span></label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="Répétez le mot de passe"></div>
+        <p class="hint" data-i18n="passwordHint">Aza mampiasa tenimiafina efa ampiasainao amin'ny kaonty hafa.</p>
+        <button class="btn" type="submit" data-i18n="create">Créer mon compte →</button>
+      </form>
+      <p class="status" id="passwordStatus" role="status"></p>
+    </section>
+
+    <section class="card screen" id="verify">
+      <button class="back" data-go="password" aria-label="Back">←</button>
+      <h2 data-i18n="verifyTitle">Vérification de l'e-mail</h2>
+      <p class="sub" data-i18n="verifySub">Rehefa ampifandraisina amin'ny backend ny site dia halefa amin'ny mailakao ny code fanamarinana.</p>
+      <div class="field"><label for="code" data-i18n="codeLabel">Code de vérification</label><input id="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" autocomplete="one-time-code"></div>
+      <button class="btn" id="verifyBtn" type="button" data-i18n="verify">Vérifier</button>
+      <p class="status" id="verifyStatus" role="status"></p>
+      <p class="hint" data-i18n="demoNote">Démonstration uniquement : tsy mandefa na manamarina code tena izy ity pejy ity.</p>
+    </section>
+
+    <section class="card screen" id="success">
+      <div class="success">
+        <div class="logo" style="font-size:38px">DAGO <span>FF</span></div>
+        <div class="check">✓</div>
+        <h2 data-i18n="successTitle">Félicitations !</h2>
+        <p class="sub" data-i18n="successSub">Vita ny demo inscription. Mila backend azo antoka vao tena voatahiry ny kaonty.</p>
+        <button class="btn" data-go="login" data-i18n="login">Se connecter</button>
+        <button class="btn btn-outline" data-go="home" data-i18n="home">Accueil</button>
+      </div>
+    </section>
+
+    <section class="card screen" id="login">
+      <button class="back" data-go="home" aria-label="Back">←</button>
+      <h2 data-i18n="loginTitle">Connexion</h2>
+      <p class="sub" data-i18n="loginSub">Midira amin'ny kaontinao DAGO FF.</p>
+      <form id="loginForm">
+        <div class="field"><label for="loginEmail" data-i18n="emailLabel">Adresse e-mail</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="loginPassword" data-i18n="password">Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+        <button class="btn" type="submit" data-i18n="login">Se connecter</button>
+      </form>
+      <div class="or" data-i18n="or">Ou</div>
+      <button class="btn google" id="googleLoginBtn" type="button"><span class="google-mark">G</span><span data-i18n="google">Continuer avec Google</span></button>
+      <p class="status" id="loginStatus" role="status"></p>
+    </section>
+
+    <div class="footer">© <span id="year"></span> <strong>DAGO FF</strong> · Play fair, respect everyone.</div>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const screens = [...document.querySelectorAll('.screen')];
+    function show(id) {
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    document.querySelectorAll('[data-go]').forEach(btn => btn.addEventListener('click', () => show(btn.dataset.go)));
+    $('year').textContent = new Date().getFullYear();
+    for (let n = 13; n <= 100; n++) {
+      const o = document.createElement('option'); o.value = n; o.textContent = n; $('age').appendChild(o);
+    }
+
+    const translations = {
+      mg: {
+        welcome:"Tongasoa eto amin'ny DAGO FF", intro:"Midira amin'ny vondrom-piarahamonin'ny mpilalao Free Fire.",
+        signup:"♟ INSCRIPTION", login:"↪ Hiditra", emailTitle:"Inscription : Adresse e-mail",
+        emailSub:"Ampidiro ny adiresy mailaka hampiasainao amin'ny kaonty DAGO FF.",
+        emailLabel:'Adresse e-mail <span class="required">*</span>', continue:"Hanohy →", or:"Na",
+        google:"Tohizo amin'ny Google", hasAccount:"Efa manana kaonty?", detailsTitle:"Mombamomba anao",
+        detailsSub:"Fenoy ny mombamomba anao.", lastName:'Anarana <span class="required">*</span>',
+        firstName:'Fanampin’anarana <span class="required">*</span>', age:'Taona <span class="required">*</span>',
+        choose:"Safidio ny taonanao", location:'Toerana ipetrahana <span class="required">*</span>',
+        gender:"Sexe (tsy voatery)", male:"Lahy", female:"Vavy", preferNot:"Tsy hilaza",
+        gameTitle:"Kaonty Free Fire", gameSub:"Ampidiro ny pseudo sy UID Free Fire raha tianao.",
+        nickname:"Pseudo Free Fire (tsy voatery)", uid:"UID Free Fire (tsy voatery)",
+        optionalHint:"Afaka avelanao ho banga ireo raha tsy tianao ampidirina izao.",
+        passwordTitle:"Mot de passe", passwordSub:"Mamoròna tenimiafina matanjaka ho an'ny kaontinao.",
+        password:'Mot de passe <span class="required">*</span>', confirmPassword:'Hamarino ny mot de passe <span class="required">*</span>',
+        passwordHint:"Aza mampiasa tenimiafina efa ampiasainao amin'ny kaonty hafa.",
+        create:"Hamorona kaonty →", verifyTitle:"Fanamarinana ny e-mail",
+        verifySub:"Rehefa ampifandraisina amin'ny backend ny site dia halefa amin'ny mailakao ny code fanamarinana.",
+        codeLabel:"Kaody fanamarinana", verify:"Hamarino", demoNote:"Demo ihany: tsy mandefa na manamarina code tena izy ity pejy ity.",
+        successTitle:"Arahabaina!", successSub:"Vita ny demo inscription. Mila backend azo antoka vao tena voatahiry ny kaonty.",
+        home:"Fandraisana", loginTitle:"Hiditra", loginSub:"Midira amin'ny kaontinao DAGO FF."
+      },
+      fr: {
+        welcome:"Bienvenue sur DAGO FF", intro:"Rejoignez la communauté des joueurs Free Fire.",
+        signup:"♟ INSCRIPTION", login:"↪ Se connecter", emailTitle:"Inscription : Adresse e-mail",
+        emailSub:"Saisissez l'adresse e-mail que vous utiliserez pour votre compte DAGO FF.",
+        emailLabel:'Adresse e-mail <span class="required">*</span>', continue:"Continuer →", or:"Ou",
+        google:"Continuer avec Google", hasAccount:"Vous avez déjà un compte ?", detailsTitle:"Informations personnelles",
+        detailsSub:"Renseignez vos informations personnelles.", lastName:'Nom <span class="required">*</span>',
+        firstName:'Prénom(s) <span class="required">*</span>', age:'Âge <span class="required">*</span>',
+        choose:"Sélectionnez votre âge", location:'Lieu de résidence <span class="required">*</span>',
+        gender:"Sexe (optionnel)", male:"Masculin", female:"Féminin", preferNot:"Préfère ne pas préciser",
+        gameTitle:"Compte Free Fire", gameSub:"Ajoutez votre pseudo et UID Free Fire si vous le souhaitez.",
+        nickname:"Pseudo Free Fire (optionnel)", uid:"UID Free Fire (optionnel)",
+        optionalHint:"Vous pouvez laisser ces champs vides.", passwordTitle:"Mot de passe",
+        passwordSub:"Créez un mot de passe sécurisé.", password:'Mot de passe <span class="required">*</span>',
+        confirmPassword:'Confirmer le mot de passe <span class="required">*</span>',
+        passwordHint:"N'utilisez pas un mot de passe déjà utilisé sur un autre compte.",
+        create:"Créer mon compte →", verifyTitle:"Vérification de l'e-mail",
+        verifySub:"Une fois le site relié à un backend, un code de vérification sera envoyé à votre adresse e-mail.",
+        codeLabel:"Code de vérification", verify:"Vérifier", demoNote:"Démo uniquement : cette page n'envoie ni ne vérifie de vrai code.",
+        successTitle:"Félicitations !", successSub:"Inscription de démonstration terminée. Un backend sécurisé est nécessaire pour créer un vrai compte.",
+        home:"Accueil", loginTitle:"Connexion", loginSub:"Connectez-vous à votre compte DAGO FF."
+      },
+      en: {
+        welcome:"Welcome to DAGO FF", intro:"Join the Free Fire player community.",
+        signup:"♟ SIGN UP", login:"↪ Log in", emailTitle:"Sign up: Email address",
+        emailSub:"Enter the email address you want to use for your DAGO FF account.",
+        emailLabel:'Email address <span class="required">*</span>', continue:"Continue →", or:"Or",
+        google:"Continue with Google", hasAccount:"Already have an account?", detailsTitle:"Personal information",
+        detailsSub:"Fill in your personal details.", lastName:'Last name <span class="required">*</span>',
+        firstName:'First name(s) <span class="required">*</span>', age:'Age <span class="required">*</span>',
+        choose:"Select your age", location:'Location <span class="required">*</span>',
+        gender:"Gender (optional)", male:"Male", female:"Female", preferNot:"Prefer not to say",
+        gameTitle:"Free Fire account", gameSub:"Add your Free Fire nickname and UID if you want.",
+        nickname:"Free Fire nickname (optional)", uid:"Free Fire UID (optional)",
+        optionalHint:"You can leave these fields blank.", passwordTitle:"Password",
+        passwordSub:"Create a strong password for your account.", password:'Password <span class="required">*</span>',
+        confirmPassword:'Confirm password <span class="required">*</span>',
+        passwordHint:"Do not reuse a password from another account.", create:"Create my account →",
+        verifyTitle:"Email verification", verifySub:"Once connected to a backend, a verification code will be sent to your email.",
+        codeLabel:"Verification code", verify:"Verify", demoNote:"Demo only: this page does not send or verify a real code.",
+        successTitle:"Congratulations!", successSub:"Demo signup complete. A secure backend is required to create a real account.",
+        home:"Home", loginTitle:"Log in", loginSub:"Log in to your DAGO FF account."
+      }
+    };
+    function setLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[lang][key]) el.innerHTML = translations[lang][key];
+      });
+      localStorage.setItem('dagoLanguage', lang);
+    }
+    $('language').value = localStorage.getItem('dagoLanguage') || 'mg';
+    setLanguage($('language').value);
+    $('language').addEventListener('change', e => setLanguage(e.target.value));
+
+    $('emailForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if (!$('emailAddress').checkValidity()) return;
+      $('emailStatus').textContent = "";
+      show('details');
+    });
+    $('detailsForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if (!$('detailsForm').reportValidity()) return;
+      show('game');
+    });
+    $('gameForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if ($('uid').value && !/^[0-9]{5,20}$/.test($('uid').value)) {
+        $('uid').setCustomValidity('UID must contain 5–20 digits.');
+        $('uid').reportValidity(); $('uid').setCustomValidity(''); return;
+      }
+      show('password');
+    });
+    $('passwordForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if ($('passwordInput').value !== $('confirmPassword').value) {
+        $('passwordStatus').textContent = $('language').value === 'mg' ? "Tsy mitovy ireo mot de passe." : "Les mots de passe ne correspondent pas.";
+        return;
+      }
+      $('passwordStatus').textContent = "";
+      show('verify');
+    });
+    $('verifyBtn').addEventListener('click', () => {
+      $('verifyStatus').textContent = $('language').value === 'mg'
+        ? "Tsy mbola mandeha ny fanamarinana tena izy. Ampifandraiso amin'ny backend aloha."
+        : "La vérification réelle n'est pas activée. Connectez d'abord un backend sécurisé.";
+    });
+    $('googleBtn').addEventListener('click', () => {
+      alert($('language').value === 'mg'
+        ? "Mbola demo ny bokotra Google. Mila ampifandraisina amin'ny Google Identity Services na Firebase Authentication izy vao tena miasa."
+        : "Le bouton Google est une démo. Connectez Google Identity Services ou Firebase Authentication pour l'activer.");
+    });
+    $('googleLoginBtn').addEventListener('click', () => $('googleBtn').click());
+    $('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      $('loginStatus').textContent = $('language').value === 'mg'
+        ? "Mbola demo ny connexion. Mila backend/authentication azo antoka."
+        : "La connexion est une démo. Un backend/authentification sécurisé est nécessaire.";
+    });
+  </script>
+</body>
+</html>
